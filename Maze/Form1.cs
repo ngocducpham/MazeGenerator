@@ -8,26 +8,24 @@ namespace Maze
 {
     public partial class Form1 : Form
     {
-        private const int CELL_SIZE = 20;
+        private const int CELL_SIZE = 50;
         private readonly int MAZE_WIDTH, MAZE_HETGHT;
         private Maze Maze;
         private Thread MazeGeneratorThread;
         private Graphics MazeGraphics;
         private Color WallColor = Color.Black;
-        private int TimeCouter = 0;
+        private int Seconds = 0;
 
         public Form1()
         {
             InitializeComponent();
+            //this.Height = 1050;
+            //this.Width = 1850;
             MAZE_HETGHT = pictureBox1.Height;
             MAZE_WIDTH = pictureBox1.Width;
             Maze = new Maze(MAZE_HETGHT / CELL_SIZE, MAZE_WIDTH / CELL_SIZE);
+            Control.CheckForIllegalCrossThreadCalls = false;
             MazeGraphics = pictureBox1.CreateGraphics();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -39,14 +37,38 @@ namespace Maze
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            TimeCouter++;
-            Console.WriteLine("tick");
+            Seconds++;
+        }
+
+        #region Helper
+
+        private string TimeConvert(int seconds)
+        {
+            string result = "";
+            if ((seconds / 3600) > 0)
+            {
+                result += (seconds / 60 % 60).ToString() + " hours ";
+            }
+
+            if ((seconds % 3600) / 60 > 0)
+            {
+                result += ((seconds % 3600) / 60).ToString() + " minutes ";
+            }
+
+            if ((seconds % 60) >=0)
+            {
+                result += (seconds % 60).ToString() + " seconds ";
+            }
+
+            return result;
         }
 
         private Point ConvertToXY(int i, int j)
         {
             return new Point { Y = i * CELL_SIZE, X = j * CELL_SIZE };
         }
+
+        #endregion
 
         #region Algorithm
 
@@ -64,9 +86,10 @@ namespace Maze
             {
                 Maze.InitData();
 
-                TimeCouter = 0;
+                Seconds = 0;
+                timer1.Start();
                 timer1.Enabled = true;
-                
+
 
                 Maze.Cells[0, 0].Wall[0] = false;
                 pictureBox1.Invalidate();
@@ -78,8 +101,6 @@ namespace Maze
 
                 while (stack.Count != 0)
                 {
-                    //pos = ConvertToXY(current.Position.I, current.Position.J);
-                    //MazeGraphics.FillRectangle(Brushes.Orange, pos.X + 2, pos.Y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
                     Thread.Sleep(1);
                     next = GetNeighbor(current);
                     if (next != null)
@@ -96,15 +117,10 @@ namespace Maze
                         current = stack.Pop();
                 }
 
-                pictureBox1.Invalidate();
-                
-                var again = MessageBox.Show($"Time: {TimeCouter} seconds", "Again?", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                if (again == DialogResult.No)
-                    break;
-
-                //Thread.Sleep(5000);
-                
-                
+                Thread.Sleep(1000);
+                //var again = MessageBox.Show($"Total time: {TimeConvert(Seconds)}", "Again?", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                //if (again == DialogResult.No)
+                //break;
             }
         }
 

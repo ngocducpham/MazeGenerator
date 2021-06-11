@@ -125,11 +125,12 @@
         public Cell CameFrom { get; set; }
 
         // top, right, bottom, left
-        public bool[] Wall = { true, true, true, true };
+        public bool[] Wall;
 
         public Cell()
         {
             Position = new CellPositon();
+            Wall = new bool[] { true, true, true, true };
         }
 
     }
